@@ -1,0 +1,81 @@
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: efs-pv-staging-fnb-admin
+spec:
+  capacity:
+    storage: 5Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: efs-sc
+  csi:
+    driver: efs.csi.aws.com
+    volumeHandle: fs-045d6eaa473d13b1e::fsap-0635be1fe0b438f4e
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: efs-pv-staging-fnb-api
+spec:
+  capacity:
+    storage: 5Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: efs-sc
+  csi:
+    driver: efs.csi.aws.com
+    volumeHandle: fs-045d6eaa473d13b1e::fsap-00dbf9cfd803c3b8f
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: efs-pv-staging-fnb-admin-corp
+spec:
+  capacity:
+    storage: 5Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: efs-sc
+  csi:
+    driver: efs.csi.aws.com
+    volumeHandle: fs-045d6eaa473d13b1e::fsap-04a7b19a5592dde7f
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: efs-pv-staging-fnb-msa-api-v2
+spec:
+  capacity:
+    storage: 5Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: efs-sc
+  csi:
+    driver: efs.csi.aws.com
+    volumeHandle: fs-045d6eaa473d13b1e::fsap-0badded4ee817d8bb
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: efs-pv-staging-fnb-msa-front-v2-client
+spec:
+  capacity:
+    storage: 5Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: efs-sc
+  csi:
+    driver: efs.csi.aws.com
+    volumeHandle: fs-045d6eaa473d13b1e::fsap-0451166a4ac3340f5
+---
