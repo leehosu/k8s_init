@@ -3,8 +3,8 @@
 # Datadog Agent with Logs, APM, Processes, and System Probe enabled
 targetSystem: "linux"
 datadog:
-  apiKey: f90251964232846919a49cdccccaaa70
-  appKey: f5484b5557740ebf898870964535fb11178cf4fd
+  apiKey: {datadog.apiKey}
+  appKey: {datadog.appKey}
   tags: []
   # datadog.kubelet.tlsVerify should be `false` on kind and minikube
   # to establish communication with the kubelet
