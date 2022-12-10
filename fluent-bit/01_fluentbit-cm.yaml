@@ -6,157 +6,97 @@ data:
         HTTP_Server       On
         HTTP_Listen       0.0.0.0
         HTTP_Port         2020
-
     [INPUT]
         Name              tail
         Path              /var/log/containers/fnb-admin-app-*.log
         DB                /var/log/flb_kube.db
         Mem_Buf_Limit     10MB
         Refresh_Interval  10
-        Tag               fnb-admin
-        Parser            docker
+        Tag               fnb-admin-app.*
+        multiline.parser  docker, cri
     [FILTER]
-        Name              record_modifier
-        Match             fnb-admin
-        Whitelist_key     log
+        Name              kubernetes
+        Match             fnb-admin-app.*
+        Kube_URL          https://kubernetes.default.svc:443
+        Kube_CA_File      /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        Kube_Token_File   /var/run/secrets/kubernetes.io/serviceaccount/token
+        Kube_Tag_Prefix   kube.var.log.containers.
+        Merge_Log         On
+        Merge_Log_Key     log_processed
+        Regex_Parser      kube-custom
     [OUTPUT]
         Name              kinesis_firehose
-        Match             fnb-admin
+        Match             fnb-admin-app.*
         region            ap-northeast-2
-        delivery_stream   staging-fnb-admin-log
-
+        delivery_stream   prod-fnb-admin-log
     [INPUT]
         Name              tail
-        Tag               fnb-admin-corp
+        Tag               fnb-admin-corp-app.*
         Path              /var/log/containers/fnb-admin-corp-app-*.log
         DB                /var/log/flb_kube.db
         Mem_Buf_Limit     10MB
         Refresh_Interval  10
-        Parser            docker
+        multiline.parser  docker, cri
     [FILTER]
-        Name              record_modifier
-        Match             fnb-admin-corp
-        Whitelist_key     log
+        Name              kubernetes
+        Match             fnb-admin-corp-app.*
+        Kube_URL          https://kubernetes.default.svc:443
+        Kube_CA_File      /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        Kube_Token_File   /var/run/secrets/kubernetes.io/serviceaccount/token
+        Kube_Tag_Prefix   kube.var.log.containers.
+        Merge_Log         On
+        Merge_Log_Key     log_processed
+        Regex_Parser      kube-custom
     [OUTPUT]
         Name              kinesis_firehose
-        Match             fnb-admin-corp
+        Match             fnb-admin-corp-app.*
         region            ap-northeast-2
-        delivery_stream   staging-fnb-admin-corp-log
- 
-    [INPUT]
-        Name              tail
-        Tag               fnb-front-v2-client
-        Path              /var/log/containers/fnb-front-v2-client-app-*.log
-        DB                /var/log/flb_kube.db
-        Mem_Buf_Limit     10MB
-        Refresh_Interval  10
-        Parser            docker
-    [FILTER]
-        Name              record_modifier
-        Match             fnb-front-v2-client
-        Whitelist_key     log
-    [OUTPUT]
-        Name              kinesis_firehose
-        Match             fnb-front-v2-client
-        region            ap-northeast-2
-        delivery_stream   staging-fnb-front-v2-client-log
-    
+        delivery_stream   prod-fnb-admin-corp-log
     [INPUT]
         Name              tail
         Path              /var/log/containers/fnb-api-app-*.log
         DB                /var/log/flb_kube.db
         Mem_Buf_Limit     10MB
         Refresh_Interval  10
-        Tag               fnb-api
-        Parser            docker
+        Tag               fnb-api-app.*
+        multiline.parser  docker, cri
     [FILTER]
-        Name              record_modifier
-        Match             fnb-api
-        Whitelist_key     log
+        Name              kubernetes
+        Match             fnb-api-app.*
+        Kube_URL          https://kubernetes.default.svc:443
+        Kube_CA_File      /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        Kube_Token_File   /var/run/secrets/kubernetes.io/serviceaccount/token
+        Kube_Tag_Prefix   kube.var.log.containers.
+        Merge_Log         On
+        Merge_Log_Key     log_processed
+        Regex_Parser      kube-custom
     [OUTPUT]
         Name              kinesis_firehose
-        Match             fnb-api
+        Match             fnb-api-app.*
         region            ap-northeast-2
-        delivery_stream   staging-fnb-api-log
-
-    [INPUT]
-        Name              tail
-        Path              /var/log/containers/fnb-msa-api-v2-app-*.log
-        DB                /var/log/flb_kube.db
-        Mem_Buf_Limit     10MB
-        Refresh_Interval  10
-        Tag               fnb-msa-api-v2
-        Parser            docker
-    [FILTER]
-        Name              record_modifier
-        Match             fnb-msa-api-v2
-        Whitelist_key     log
-    [OUTPUT]
-        Name              kinesis_firehose
-        Match             fnb-msa-api-v2
-        region            ap-northeast-2
-        delivery_stream   staging-fnb-msa-api-v2-log
+        delivery_stream   prod-fnb-api-log
   parsers.conf: |
     [PARSER]
-        Name   apache
-        Format regex
-        Regex  ^(?<host>[^ ]*) [^ ]* (?<user>[^ ]*) \[(?<time>[^\]]*)\] "(?<method>\S+)(?: +(?<path>[^\"]*?)(?: +\S*)?)?" (?<code>[^ ]*) (?<size>[^ ]*)(?: "(?<referer>[^\"]*)" "(?<agent>[^\"]*)")?$
-        Time_Key time
-        Time_Format %d/%b/%Y:%H:%M:%S %z
+        Name              docker
+        Format            json
+        Time_Key          time
+        Time_Format       %Y-%m-%dT%H:%M:%S.%L
+        Time_Keep         On
+        # Command       | Decoder   | Field | Optional Action   |
+        # ==============|===========|=======|===================|
+        Decode_Field_As   json       log
+    [PARSER]
+      # http://rubular.com/r/tjUt3Awgg4
+        Name              cri
+        Format            regex
+        Regex             ^(?<time>[^ ]+) (?<stream>stdout|stderr) (?<logtag>[^ ]*) (?<message>.*)$
+        Time_Key          time
+        Time_Format       %Y-%m-%dT%H:%M:%S.%L%z
+    [PARSER]
+        Name              kube-custom
+        Format            regex
+        Regex             (?<tag>[^.]+)?\.?(?<pod_name>[a-z0-9](?:[-a-z0-9]*[a-z0-9])?(?:\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*)_(?<namespace_name>[^_]+)_(?<container_name>.+)-(?<docker_id>[a-z0-9]{64})\.log$
 
-    [PARSER]
-        Name   apache2
-        Format regex
-        Regex  ^(?<host>[^ ]*) [^ ]* (?<user>[^ ]*) \[(?<time>[^\]]*)\] "(?<method>\S+)(?: +(?<path>[^ ]*) +\S*)?" (?<code>[^ ]*) (?<size>[^ ]*)(?: "(?<referer>[^\"]*)" "(?<agent>[^\"]*)")?$
-        Time_Key time
-        Time_Format %d/%b/%Y:%H:%M:%S %z
-
-    [PARSER]
-        Name   apache_error
-        Format regex
-        Regex  ^\[[^ ]* (?<time>[^\]]*)\] \[(?<level>[^\]]*)\](?: \[pid (?<pid>[^\]]*)\])?( \[client (?<client>[^\]]*)\])? (?<message>.*)$
-
-    [PARSER]
-        Name   nginx
-        Format regex
-        Regex ^(?<remote>[^ ]*) (?<host>[^ ]*) (?<user>[^ ]*) \[(?<time>[^\]]*)\] "(?<method>\S+)(?: +(?<path>[^\"]*?)(?: +\S*)?)?" (?<code>[^ ]*) (?<size>[^ ]*)(?: "(?<referer>[^\"]*)" "(?<agent>[^\"]*)")?$
-        Time_Key time
-        Time_Format %d/%b/%Y:%H:%M:%S %z
-
-    [PARSER]
-        Name   json
-        Format json
-        Time_Key time
-        Time_Format %d/%b/%Y:%H:%M:%S %z
-
-    [PARSER]
-        Name        docker
-        Format      json
-        Time_Key    time
-        Time_Format %Y-%m-%dT%H:%M:%S.%L
-        Time_Keep   off
-
-    [PARSER]
-        # http://rubular.com/r/tjUt3Awgg4
-        Name cri
-        Format regex
-        Regex ^(?<time>[^ ]+) (?<stream>stdout|stderr) (?<logtag>[^ ]*) (?<message>.*)$
-        Time_Key    time
-        Time_Format %Y-%m-%dT%H:%M:%S.%L%z
-
-    [PARSER]
-        Name        syslog
-        Format      regex
-        Regex       ^\<(?<pri>[0-9]+)\>(?<time>[^ ]* {1,2}[^ ]* [^ ]*) (?<host>[^ ]*) (?<ident>[a-zA-Z0-9_\/\.\-]*)(?:\[(?<pid>[0-9]+)\])?(?:[^\:]*\:)? *(?<message>.*)$
-        Time_Key    time
-        Time_Format %b %d %H:%M:%S
-    
-    [PARSER]
-        Name    mongodb
-        Format  regex
-        Regex   ^(?<time>[^ ]*)\s+(?<severity>\w)\s+(?<component>[^ ]+)\s+\[(?<context>[^\]]+)]\s+(?<message>.*?) *(?<ms>(\d+))?(:?ms)?$
-        Time_Format %Y-%m-%dT%H:%M:%S.%L
-        Time_Keep   On
 kind: ConfigMap
 metadata:
   creationTimestamp: "2022-05-30T05:43:33Z"

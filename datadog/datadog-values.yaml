@@ -1,0 +1,30 @@
+#!/bin/bash
+
+# Datadog Agent with Logs, APM, Processes, and System Probe enabled
+targetSystem: "linux"
+datadog:
+  apiKey: f90251964232846919a49cdccccaaa70
+  appKey: f5484b5557740ebf898870964535fb11178cf4fd
+  tags: []
+  # datadog.kubelet.tlsVerify should be `false` on kind and minikube
+  # to establish communication with the kubelet
+  # kubelet:
+    # tlsVerify: "false"
+  logs:
+    enabled: true
+    containerCollectAll: false
+    containerCollectUsingFiles: true
+  apm:
+    portEnabled: true
+    socketPath: /var/run/datadog/apm.socket
+    hostSocketPath: /var/run/datadog/
+  processAgent:
+    enabled: true
+    processCollection: false
+  systemProbe:
+    enableTCPQueueLength: false
+    enableOOMKill: true
+    collectDNSStats: false
+  logs:
+    enabled: true
+    containerCollectAll: true
