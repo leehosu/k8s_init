@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: efs-pv-staging-fnb-admin
+  name: logs-fnb-admin-app-0
 spec:
   capacity:
     storage: 5Gi
@@ -13,12 +13,12 @@ spec:
   storageClassName: efs-sc
   csi:
     driver: efs.csi.aws.com
-    volumeHandle: fs-045d6eaa473d13b1e::fsap-0635be1fe0b438f4e
+    volumeHandle: fs-045d6eaa473d13b1e::fsap-039ce9e72cac9b50a
 ---
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: efs-pv-staging-fnb-api
+  name: logs-fnb-admin-app-1
 spec:
   capacity:
     storage: 5Gi
@@ -29,12 +29,12 @@ spec:
   storageClassName: efs-sc
   csi:
     driver: efs.csi.aws.com
-    volumeHandle: fs-045d6eaa473d13b1e::fsap-00dbf9cfd803c3b8f
+    volumeHandle: fs-045d6eaa473d13b1e::fsap-072731fb0dad12e69
 ---
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: efs-pv-staging-fnb-admin-corp
+  name: logs-fnb-api-app-0
 spec:
   capacity:
     storage: 5Gi
@@ -45,12 +45,12 @@ spec:
   storageClassName: efs-sc
   csi:
     driver: efs.csi.aws.com
-    volumeHandle: fs-045d6eaa473d13b1e::fsap-04a7b19a5592dde7f
+    volumeHandle: fs-045d6eaa473d13b1e::fsap-0eacc284110824b2a
 ---
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: efs-pv-staging-fnb-msa-api-v2
+  name: logs-fnb-api-app-1
 spec:
   capacity:
     storage: 5Gi
@@ -61,12 +61,12 @@ spec:
   storageClassName: efs-sc
   csi:
     driver: efs.csi.aws.com
-    volumeHandle: fs-045d6eaa473d13b1e::fsap-0badded4ee817d8bb
+    volumeHandle: fs-045d6eaa473d13b1e::fsap-0851cf3e3ba6d603a
 ---
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: efs-pv-staging-fnb-msa-front-v2-client
+  name: logs-fnb-admin-corp-app-0
 spec:
   capacity:
     storage: 5Gi
@@ -77,5 +77,5 @@ spec:
   storageClassName: efs-sc
   csi:
     driver: efs.csi.aws.com
-    volumeHandle: fs-045d6eaa473d13b1e::fsap-0451166a4ac3340f5
+    volumeHandle: fs-045d6eaa473d13b1e::fsap-09c725cf093a45542
 ---

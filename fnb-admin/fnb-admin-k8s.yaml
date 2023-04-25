@@ -1,0 +1,83 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fnb-admin-service
+  namespace: fnb-msa-prod
+  labels:
+    app: fnb-admin-app
+spec:
+  selector:
+    app: fnb-admin-app
+  ports:
+  - port: 80
+    name: http
+    protocol: TCP
+    targetPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fnb-admin-app
+  namespace: fnb-msa-prod
+  labels:
+    app: fnb-admin-app
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: fnb-admin-app
+  template:
+    metadata:
+      labels:
+        app: fnb-admin-app
+    spec:
+      containers:
+      - name: fnb-msa-admin-production
+        image: 893246771823.dkr.ecr.ap-northeast-2.amazonaws.com/fnb-msa-admin-master:master-90
+        ports:
+          - name: http
+            containerPort: 8080
+        readinessProbe: 
+          httpGet:
+            path: /
+            port: 8080
+          initialDelaySeconds: 20
+          periodSeconds: 20
+          timeoutSeconds: 15
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 20
+          timeoutSeconds: 10
+          failureThreshold: 1
+        startupProbe: 
+          httpGet:
+            path: /
+            port: 8080
+          initialDelaySeconds: 60
+          periodSeconds: 60
+          timeoutSeconds: 40
+          failureThreshold: 1
+        resources:
+          requests:
+            memory: 3.5Gi
+          limits:
+            memory: 3.5Gi
+      terminationGracePeriodSeconds: 90
+      imagePullSecrets:
+        - name: regcred
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - fnb-admin-app
+              topologyKey: kubernetes.io/hostname

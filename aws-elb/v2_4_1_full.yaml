@@ -811,7 +811,7 @@ spec:
     spec:
       containers:
       - args:
-        - --cluster-name=fnb-msa-release
+        - --cluster-name=fnb-msa-prod
         - --ingress-class=alb
         image: amazon/aws-alb-ingress-controller:v2.4.1
         livenessProbe:

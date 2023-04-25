@@ -13,7 +13,7 @@ data:
         Mem_Buf_Limit     10MB
         Refresh_Interval  10
         Tag               fnb-admin-app.*
-        multiline.parser  docker, cri
+        parser            docker
     [FILTER]
         Name              kubernetes
         Match             fnb-admin-app.*
@@ -59,7 +59,7 @@ data:
         Mem_Buf_Limit     10MB
         Refresh_Interval  10
         Tag               fnb-api-app.*
-        multiline.parser  docker, cri
+        parser            docker
     [FILTER]
         Name              kubernetes
         Match             fnb-api-app.*
@@ -75,6 +75,75 @@ data:
         Match             fnb-api-app.*
         region            ap-northeast-2
         delivery_stream   prod-fnb-api-log
+    [INPUT]
+        Name              tail
+        Path              /var/log/containers/fnb-msa-api-v2-app-*.log
+        DB                /var/log/flb_kube.db
+        Mem_Buf_Limit     10MB
+        Refresh_Interval  10
+        Tag               fnb-msa-api-v2-app.*
+        multiline.parser  docker, cri
+    [FILTER]
+        Name              kubernetes
+        Match             fnb-msa-api-v2-app.*
+        Kube_URL          https://kubernetes.default.svc:443
+        Kube_CA_File      /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        Kube_Token_File   /var/run/secrets/kubernetes.io/serviceaccount/token
+        Kube_Tag_Prefix   kube.var.log.containers.
+        Merge_Log         On
+        Merge_Log_Key     log_processed
+        Regex_Parser      kube-custom
+    [OUTPUT]
+        Name              kinesis_firehose
+        Match             fnb-msa-api-v2-app.*
+        region            ap-northeast-2
+        delivery_stream   prod-fnb-msa-api-v2-log
+    [INPUT]
+        Name              tail
+        Path              /var/log/containers/fnb-msa-mq-listener-app-*.log
+        DB                /var/log/flb_kube.db
+        Mem_Buf_Limit     10MB
+        Refresh_Interval  10
+        Tag               fnb-msa-mq-listener-app.*
+        multiline.parser  docker, cri
+    [FILTER]
+        Name              kubernetes
+        Match             fnb-msa-mq-listener-app.*
+        Kube_URL          https://kubernetes.default.svc:443
+        Kube_CA_File      /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        Kube_Token_File   /var/run/secrets/kubernetes.io/serviceaccount/token
+        Kube_Tag_Prefix   kube.var.log.containers.
+        Merge_Log         On
+        Merge_Log_Key     log_processed
+        Regex_Parser      kube-custom
+    [OUTPUT]
+        Name              kinesis_firehose
+        Match             fnb-msa-mq-listener-app.*
+        region            ap-northeast-2
+        delivery_stream   prod-fnb-msa-mq-listener-log
+    [INPUT]
+        Name              tail
+        Path              /var/log/containers/fnb-msa-front-v2-app-*.log
+        DB                /var/log/flb_kube.db
+        Mem_Buf_Limit     10MB
+        Refresh_Interval  10
+        Tag               fnb-msa-front-v2-app.*
+        multiline.parser  docker, cri
+    [FILTER]
+        Name              kubernetes
+        Match             fnb-msa-front-v2-app.*
+        Kube_URL          https://kubernetes.default.svc:443
+        Kube_CA_File      /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        Kube_Token_File   /var/run/secrets/kubernetes.io/serviceaccount/token
+        Kube_Tag_Prefix   kube.var.log.containers.
+        Merge_Log         On
+        Merge_Log_Key     log_processed
+        Regex_Parser      kube-custom
+    [OUTPUT]
+        Name              kinesis_firehose
+        Match             fnb-msa-front-v2-app.*
+        region            ap-northeast-2
+        delivery_stream   prod-fnb-msa-front-v2-log
   parsers.conf: |
     [PARSER]
         Name              docker

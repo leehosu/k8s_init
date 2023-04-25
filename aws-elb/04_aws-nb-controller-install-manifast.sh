@@ -12,4 +12,3 @@ kubectl apply -k "github.com/aws/eks-charts/stable/aws-load-balancer-controller/
 # vim ./v2_4_1_full.yaml
 # cluster-name change
 # ServiceAccount remove
-
