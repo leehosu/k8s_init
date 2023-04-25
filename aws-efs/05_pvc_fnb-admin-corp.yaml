@@ -1,8 +1,8 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: logs-fnb-admin-corp-app-0
-  namespace: fnb-msa-prod
+  name: logs--app-0
+  namespace: {namespace-name}
 spec:
   accessModes:
     - ReadWriteMany

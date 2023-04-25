@@ -1,8 +1,8 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: fnb-ingress-production
-  namespace: fnb-msa-prod
+  name: {ingress-name}
+  namespace: {namespace-name}
   annotations:
     kubernetes.io/ingress.class: alb
     alb.ingress.kubernetes.io/scheme: internet-facing
@@ -10,62 +10,32 @@ metadata:
     alb.ingress.kubernetes.io/target-group-attributes: stickiness.enabled=true,stickiness.lb_cookie.duration_seconds=1800
     # SSL Settings
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS":443}]'
-    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:ap-northeast-2:893246771823:certificate/9d9a7ff1-93e7-492f-92b9-a728790a3a28
+    alb.ingress.kubernetes.io/certificate-arn: {certificate-arn}
     alb.ingress.kubernetes.io/ssl-policy: ELBSecurityPolicy-2016-08
     alb.ingress.kubernetes.io/actions.ssl-redirect: '{"Type": "redirect", "RedirectConfig": { "Protocol": "HTTPS", "Port": "443", "StatusCode": "HTTP_301"}}'
 spec:
   rules:
-  - host: fnbadmin.fnbpeople.com
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: fnb-admin-corp-service
-            port:
-              number: 80
-  - host: admin.fnbpeople.com
+  - host: a.com
     http:
       paths:
       - path: /api/v2
         pathType: Prefix
         backend:
           service:
-            name: fnb-msa-api-v2-service
+            name: a-service
             port:
               number: 80
       - path: /client/v2
         pathType: Prefix
         backend:
           service:
-            name: fnb-msa-front-v2-service
+            name: b-service
             port: 
               number: 80 
       - path: /
         pathType: Prefix
         backend:
           service:
-            name: fnb-admin-service
-            port:
-              number: 80
-  - host: api.fnbpeople.com
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: fnb-api-service
-            port:
-              number: 80
-  - host: m.fnbpeople.com
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: fnb-msa-mobile-web-service
+            name: c-service
             port:
               number: 80
