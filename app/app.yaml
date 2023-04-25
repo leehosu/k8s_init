@@ -2,13 +2,13 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: fnb-admin-service
-  namespace: fnb-msa-prod
+  name: {service-name}
+  namespace: {namespace-name}
   labels:
-    app: fnb-admin-app
+    app: {app-name}
 spec:
   selector:
-    app: fnb-admin-app
+    app: {app-name}
   ports:
   - port: 80
     name: http
@@ -18,23 +18,23 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: fnb-admin-app
-  namespace: fnb-msa-prod
+  name: {app-name}
+  namespace: {namespace-name}
   labels:
-    app: fnb-admin-app
+    app: {app-name}
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app: fnb-admin-app
+      app: {app-name}
   template:
     metadata:
       labels:
-        app: fnb-admin-app
+        app: {app-name}
     spec:
       containers:
-      - name: fnb-msa-admin-production
-        image: 893246771823.dkr.ecr.ap-northeast-2.amazonaws.com/fnb-msa-admin-master:master-90
+      - name: {container-name}
+        image: {repository}
         ports:
           - name: http
             containerPort: 8080
@@ -79,5 +79,5 @@ spec:
                 - key: app
                   operator: In
                   values:
-                  - fnb-admin-app
+                  - {app-name}
               topologyKey: kubernetes.io/hostname
